@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      margin: 0;
+    }
+
+    .calculator {
+      width: 320px;
+      background: #111;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .display {
+      background: #000;
+      color: #0f0;
+      font-size: 2.2rem;
+      padding: 20px;
+      text-align: right;
+      min-height: 70px;
+      overflow-x: auto;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 15px;
+    }
+
+    button {
+      padding: 16px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #222;
+      color: #fff;
+      transition: transform 0.1s ease, background 0.2s ease;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .operator {
+      background: #ff9500;
+      color: #000;
+    }
+
+    .operator:hover {
+      background: #ffa733;
+    }
+
+    .equal {
+      grid-column: span 2;
+      background: #34c759;
+      color: #000;
+    }
+
+    .clear {
+      background: #ff3b30;
+      color: #000;
+    }
+
+    @media (max-width: 400px) {
+      .calculator {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div id="display" class="display">0</div>
+
+    <div class="buttons">
+      <button class="clear" data-action="clear">C</button>
+      <button data-action="delete">⌫</button>
+      <button class="operator" data-value="/">÷</button>
+      <button class="operator" data-value="*">×</button>
+
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="operator" data-value="-">−</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="operator" data-value="+">+</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button data-value=".">.</button>
+
+      <button data-value="0">0</button>
+      <button class="equal" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('button');
+
+    let currentInput = '';
+    let resultDisplayed = false;
+
+    function updateDisplay(value) {
+      display.textContent = value || '0';
+    }
+
+    function appendValue(value) {
+      if (resultDisplayed && /[0-9.]/.test(value)) {
+        currentInput = '';
+        resultDisplayed = false;
+      }
+      currentInput += value;
+      updateDisplay(currentInput);
+    }
+
+    function calculate() {
+      try {
+        const result = eval(currentInput);
+        currentInput = result.toString();
+        updateDisplay(currentInput);
+        resultDisplayed = true;
+      } catch {
+        updateDisplay('Error');
+        currentInput = '';
+      }
+    }
+
+    function clearAll() {
+      currentInput = '';
+      updateDisplay('0');
+    }
+
+    function deleteLast() {
+      currentInput = currentInput.slice(0, -1);
+      updateDisplay(currentInput);
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.dataset.value;
+        const action = button.dataset.action;
+
+        if (value) {
+          appendValue(value);
+        } else if (action === 'clear') {
+          clearAll();
+        } else if (action === 'delete') {
+          deleteLast();
+        } else if (action === 'equals') {
+          calculate();
+        }
+      });
+    });
+
+    // Keyboard support (Bonus)
+    document.addEventListener('keydown', (e) => {
+      if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
+        appendValue(e.key);
+      }
+      if (['+', '-', '*', '/'].includes(e.key)) {
+        appendValue(e.key);
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        calculate();
+      }
+      if (e.key === 'Backspace') {
+        deleteLast();
+      }
+      if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+        clearAll();
+      }
+    });
+  </script>
+</body>
+</html>
